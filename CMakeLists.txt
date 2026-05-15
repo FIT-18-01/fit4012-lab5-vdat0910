@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(fit4012_lab4_aes LANGUAGES CXX)
+project(fit4012_lab5_aes LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

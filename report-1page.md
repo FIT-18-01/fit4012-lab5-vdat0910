@@ -1,4 +1,4 @@
-# Report 1 page - Lab 4 AES-128
+# Report 1 page - Lab 5 AES-128
 
 ## Mục tiêu
 
@@ -8,7 +8,7 @@ Bài thực hành giúp sinh viên hiểu quy trình mã hóa và giải mã AES
 
 Repo sử dụng 3 file mã nguồn chính: `encrypt.cpp`, `decrypt.cpp`, `structures.h`. File `encrypt.cpp` thực hiện mã hóa plaintext và ghi ciphertext ra `message.aes`. File `decrypt.cpp` đọc `message.aes` để giải mã. File `structures.h` chứa S-box, inverse S-box, các bảng tra cứu nhân trong GF(2^8), RCon và hàm KeyExpansion.
 
-Repo được cấu trúc lại theo mẫu starter repo của FIT4012 Lab 4: có `Makefile`, `CMakeLists.txt`, thư mục `tests/`, `logs/`, `scripts/` và GitHub Actions CI.
+Repo được cấu trúc lại theo mẫu starter repo của FIT4012 Lab 5: có `Makefile`, `CMakeLists.txt`, thư mục `tests/`, `logs/`, `scripts/` và GitHub Actions CI.
 
 ## Kết quả / Result
 

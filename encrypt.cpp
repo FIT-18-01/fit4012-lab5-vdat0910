@@ -6,6 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include "structures.h"
 
 using namespace std;
@@ -141,86 +142,78 @@ int main() {
 	cout << " 128-bit AES Encryption Tool   " << endl;
 	cout << "=============================" << endl;
 
-	char message[1024];
-
 	cout << "Enter the message to encrypt: ";
-	cin.getline(message, sizeof(message));
+	string message;
+	getline(cin, message);
 	cout << message << endl;
 
 	// Pad message to 16 bytes
-	int originalLen = strlen((const char *)message);
-
+	int originalLen = static_cast<int>(message.size());
 	int paddedMessageLen = originalLen;
-
 	if ((paddedMessageLen % 16) != 0) {
 		paddedMessageLen = (paddedMessageLen / 16 + 1) * 16;
 	}
 
-	unsigned char * paddedMessage = new unsigned char[paddedMessageLen];
+	vector<unsigned char> paddedMessage(paddedMessageLen);
 	for (int i = 0; i < paddedMessageLen; i++) {
 		if (i >= originalLen) {
 			paddedMessage[i] = 0;
-		}
-		else {
-			paddedMessage[i] = message[i];
+		} else {
+			paddedMessage[i] = static_cast<unsigned char>(message[i]);
 		}
 	}
 
-	unsigned char * encryptedMessage = new unsigned char[paddedMessageLen];
+	vector<unsigned char> encryptedMessage(paddedMessageLen);
 
 	string str;
-	ifstream infile;
-	infile.open("keyfile", ios::in | ios::binary);
-
-	if (infile.is_open())
-	{
-		getline(infile, str); // The first line of file should be the key
-		infile.close();
+	ifstream infile("keyfile", ios::in | ios::binary);
+	if (!infile.is_open()) {
+		cerr << "Unable to open keyfile" << endl;
+		return 1;
 	}
-
-	else cout << "Unable to open file";
+	getline(infile, str);
+	infile.close();
 
 	istringstream hex_chars_stream(str);
 	unsigned char key[16];
-	int i = 0;
+	int keyBytes = 0;
 	unsigned int c;
-	while (hex_chars_stream >> hex >> c)
-	{
-		key[i] = c;
-		i++;
+	while (hex_chars_stream >> hex >> c) {
+		if (keyBytes >= 16) {
+			break;
+		}
+		key[keyBytes++] = static_cast<unsigned char>(c);
+	}
+	if (keyBytes != 16) {
+		cerr << "Keyfile must contain 16 bytes of hex data" << endl;
+		return 1;
 	}
 
 	unsigned char expandedKey[176];
-
 	KeyExpansion(key, expandedKey);
 
 	for (int i = 0; i < paddedMessageLen; i += 16) {
-		AESEncrypt(paddedMessage+i, expandedKey, encryptedMessage+i);
+		AESEncrypt(paddedMessage.data() + i, expandedKey, encryptedMessage.data() + i);
 	}
 
 	cout << "Encrypted message in hex:" << endl;
 	for (int i = 0; i < paddedMessageLen; i++) {
-		cout << hex << (int) encryptedMessage[i];
+		cout << hex << static_cast<int>(encryptedMessage[i]);
 		cout << " ";
 	}
 
 	cout << endl;
 
 	// Write the encrypted string out to file "message.aes"
-	ofstream outfile;
-	outfile.open("message.aes", ios::out | ios::binary);
-	if (outfile.is_open())
-	{
-		outfile << encryptedMessage;
+	ofstream outfile("message.aes", ios::out | ios::binary);
+	if (outfile.is_open()) {
+		outfile.write(reinterpret_cast<char *>(encryptedMessage.data()), paddedMessageLen);
 		outfile.close();
 		cout << "Wrote encrypted message to file message.aes" << endl;
+	} else {
+		cerr << "Unable to open output file message.aes" << endl;
+		return 1;
 	}
-
-	else cout << "Unable to open file";
-
-	// Free memory
-	delete[] paddedMessage;
-	delete[] encryptedMessage;
 
 	return 0;
 }
